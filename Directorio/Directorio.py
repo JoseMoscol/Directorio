@@ -1,6 +1,13 @@
+import tkinter as tk
+from client.gui_app import Frame, barra_menu
 
 def main():
-    pass
+    root = tk.Tk()
+    root.title('Directorio')
+    barra_menu(root)
 
-if __name__ == "__main":
+    app = Frame(root = root)
+
+    app.mainloop()
+if __name__ == "__main__":
     main()
