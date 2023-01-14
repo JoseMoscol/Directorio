@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+from model.contactos_dao import crear_tabla, borrar_tabla
 
 def barra_menu(root):
     barra_menu = tk.Menu(root)
@@ -8,8 +9,8 @@ def barra_menu(root):
     menu_incicio = tk.Menu(barra_menu, tearoff=0)
     barra_menu.add_cascade(label='Inicio', menu=menu_incicio)
 
-    menu_incicio.add_command(label='Crear directorio')
-    menu_incicio.add_command(label='Eliminar directorio')
+    menu_incicio.add_command(label='Crear directorio', command=crear_tabla)
+    menu_incicio.add_command(label='Eliminar directorio', command=borrar_tabla)
     menu_incicio.add_command(label='Salir directorio')
 
     barra_menu.add_cascade(label='Consultas')
