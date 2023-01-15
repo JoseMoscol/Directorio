@@ -1,6 +1,7 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, messagebox
 from model.contactos_dao import crear_tabla, borrar_tabla
+from model.contactos_dao import Contacto, guardar, listar, editar, eliminar
 
 def barra_menu(root):
     barra_menu = tk.Menu(root)
@@ -25,6 +26,7 @@ class Frame(tk.Frame):
         self.root =  root
         self.pack()
         #self.config(bg='green')
+        self.id_contacto = None
 
         self.campos_contactos()
         self.deshabilitar_campos()
@@ -80,7 +82,7 @@ class Frame(tk.Frame):
         self.boton_nuevo.config(width=20, font=('Times New Roman', 12, 'bold'), fg='white', bg='SpringGreen3', cursor='hand2', activebackground='SeaGreen2')
         self.boton_nuevo.grid(row=2, column=0, padx=10, pady=10)
         #Boton de guardar
-        self.boton_guardar = tk.Button(self, text='Guardar')
+        self.boton_guardar = tk.Button(self, text='Guardar', command=self.guardar_datos)
         self.boton_guardar.config(width=20, font=('Times New Roman', 12, 'bold'), fg='white', bg='DodgerBlue2', cursor='hand2', activebackground='turquoise2')
         self.boton_guardar.grid(row=2, column=1, padx=10, pady=10)
         #Boton de cancelar
@@ -88,7 +90,7 @@ class Frame(tk.Frame):
         self.boton_cancelar.config(width=20, font=('Times New Roman', 12, 'bold'), fg='white', bg='IndianRed2', cursor='hand2', activebackground='RosyBrown2')
         self.boton_cancelar.grid(row=2, column=2, padx=10, pady=10)
         #Boton de editar
-        self.boton_editar = tk.Button(self, text='Editar')
+        self.boton_editar = tk.Button(self, text='Editar',command=self.editar_datos)
         self.boton_editar.config(width=20, font=('Times New Roman', 12, 'bold'), fg='white', bg='DodgerBlue2', cursor='hand2', activebackground='turquoise2')
         self.boton_editar.grid(row=2, column=3, padx=10, pady=10)
         
@@ -108,7 +110,7 @@ class Frame(tk.Frame):
         self.boton_cancelar.config(state='normal')
 
     def deshabilitar_campos(self):
-        self.id_pelicula = None
+        self.id_contacto = None
 
         self.mi_nombre.set('')
         self.mi_apellido.set('')
@@ -123,7 +125,27 @@ class Frame(tk.Frame):
         self.boton_guardar.config(state='disabled')
         self.boton_cancelar.config(state='disabled')
 
+    def guardar_datos(self):
+        contact = Contacto(
+            self.mi_nombre.get(),
+            self.mi_apellido.get(),
+            self.mi_telefono.get(),
+            self.mi_correo.get()
+        )
+
+        if self.id_contacto == None:
+            guardar(contact)
+        else:
+            editar(contact, self.id_contacto)
+
+        self.tabla_contactos()
+
+        self.deshabilitar_campos()
+
     def tabla_contactos(self):
+        self.lista_contactos = listar()
+        self.lista_contactos.reverse()
+
         self.tabla = ttk.Treeview(self, columns=('Nombre', 'Apellido', 'Telefono', 'Correo'))
         self.tabla.grid(row=3, column=0, columnspan=4,  sticky='nse')
 
@@ -138,12 +160,50 @@ class Frame(tk.Frame):
         self.tabla.heading('#3', text='TELEFONO')
         self.tabla.heading('#4', text='CORREO')
 
+        for p in self.lista_contactos:
+            self.tabla.insert('', 0, text=p[0], values=(p[1], p[2], p[3], p[4]))
+
         #Boton de buscar
         self.boton_buscar = tk.Button(self, text='Buscar')
         self.boton_buscar.config(width=20, font=('Times New Roman', 12, 'bold'), fg='white', bg='SpringGreen3', cursor='hand2', activebackground='SeaGreen2')
         self.boton_buscar.grid(row=4, column=0, padx=10, pady=10)
 
         #Boton de eliminar
-        self.boton_eliminar = tk.Button(self, text='Eliminar')
+        self.boton_eliminar = tk.Button(self, text='Eliminar', command=self.eliminar_datos)
         self.boton_eliminar.config(width=20, font=('Times New Roman', 12, 'bold'), fg='white', bg='IndianRed2', cursor='hand2', activebackground='RosyBrown2')
         self.boton_eliminar.grid(row=4, column=2, padx=10, pady=10)
+
+    def editar_datos(self):
+        try:
+            self.id_contacto = self.tabla.item(self.tabla.selection())['text']
+            self.nombre_contacto = self.tabla.item(
+                self.tabla.selection())['values'][0]
+            self.apellido_contacto = self.tabla.item(
+                self.tabla.selection())['values'][1]
+            self.telefono_contacto = self.tabla.item(
+                self.tabla.selection())['values'][2]
+            self.correo_contacto = self.tabla.item(
+                self.tabla.selection())['values'][3]
+
+            self.habilitar_campos()
+
+            self.entry_nombre.insert(0, self.nombre_contacto)
+            self.entry_apellido.insert(0, self.apellido_contacto)
+            self.entry_telefono.insert(0, self.telefono_contacto)
+            self.entry_correo.insert(0, self.correo_contacto)
+        except:
+            titulo = 'Edicion de datos'
+            mensaje = 'No ha seleccionado ningun registro'
+            messagebox.showerror(titulo,mensaje)
+
+    def eliminar_datos(self):
+        try:
+            self.id_contacto = self.tabla.item(self.tabla.selection())['text']
+            eliminar(self.id_contacto)
+
+            self.tabla_contactos()
+            self.id_contacto = None
+        except:
+            titulo = 'Eliminar un Registro'
+            mensaje = 'No ha seleccionado ningun registro'
+            messagebox.showerror(titulo, mensaje)
