@@ -108,3 +108,21 @@ def eliminar(id_contacto):
         titulo = 'Eliminar datos'
         mensaje = 'No se pudo eliminar del registro'
         messagebox.showerror(titulo, mensaje)
+
+def buscar(nombre):
+    conexion = ConexcionDB()
+
+    lista_busqueda = []
+
+    sql = f"SELECT * FROM contacto WHERE nombre like '{nombre}' "
+
+    try:
+        conexion.cursor.execute(sql)
+        lista_busqueda = conexion.cursor.fetchall()
+        conexion.cerrarDB()
+    except:
+        titulo = 'Buscar dato'
+        mensaje = 'No se ha encontrado el contacto'
+        messagebox.showerror(titulo, mensaje)
+    
+    return lista_busqueda

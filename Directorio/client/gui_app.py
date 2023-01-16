@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 from model.contactos_dao import crear_tabla, borrar_tabla
-from model.contactos_dao import Contacto, guardar, listar, editar, eliminar
+from model.contactos_dao import Contacto, guardar, listar, editar, eliminar, buscar
 
 def barra_menu(root):
     barra_menu = tk.Menu(root)
@@ -164,7 +164,7 @@ class Frame(tk.Frame):
             self.tabla.insert('', 0, text=p[0], values=(p[1], p[2], p[3], p[4]))
 
         #Boton de buscar
-        self.boton_buscar = tk.Button(self, text='Buscar')
+        self.boton_buscar = tk.Button(self, text='Buscar', command=self.buscar_datos)
         self.boton_buscar.config(width=20, font=('Times New Roman', 12, 'bold'), fg='white', bg='SpringGreen3', cursor='hand2', activebackground='SeaGreen2')
         self.boton_buscar.grid(row=4, column=0, padx=10, pady=10)
 
@@ -207,3 +207,17 @@ class Frame(tk.Frame):
             titulo = 'Eliminar un Registro'
             mensaje = 'No ha seleccionado ningun registro'
             messagebox.showerror(titulo, mensaje)
+    
+    def buscar_datos(self):
+        try:
+            self.nombre_contacto = self.mi_busquedad.get()
+            self.lista_busqueda = buscar(self.nombre_contacto)
+
+            titulo = 'Buqueda de datos'
+            mensaje = f"Contacto = {self.lista_busqueda} "
+            messagebox.showinfo(titulo, mensaje)
+
+        except:
+            titulo2 = 'Buqueda de datos'
+            mensaje2 = 'No existe el contacto'
+            messagebox.showerror(titulo2,mensaje2)
